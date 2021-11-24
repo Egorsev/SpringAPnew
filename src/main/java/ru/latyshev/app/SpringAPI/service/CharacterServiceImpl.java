@@ -4,14 +4,17 @@ package ru.latyshev.app.SpringAPI.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.latyshev.app.SpringAPI.convert.CharactersConverter;
+import ru.latyshev.app.SpringAPI.convert.ComicsConverter;
 import ru.latyshev.app.SpringAPI.dto.CharactersDto;
 import ru.latyshev.app.SpringAPI.dto.ComicsDto;
 import ru.latyshev.app.SpringAPI.entity.Character;
+import ru.latyshev.app.SpringAPI.exception.ComicsNotFoundException;
+import ru.latyshev.app.SpringAPI.model.ModelDataContainer;
 import ru.latyshev.app.SpringAPI.repository.CharacterRepository;
 
 import javax.transaction.Transactional;
-import javax.xml.bind.ValidationException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +23,7 @@ public class CharacterServiceImpl implements CharacterService  {
 
     private final CharacterRepository characterRepository;
     private final CharactersConverter charactersConverter;
+    private final ComicsConverter comicsConverter;
 
 
     @Override
@@ -36,11 +40,17 @@ public class CharacterServiceImpl implements CharacterService  {
         characterRepository.deleteById(id);
     }
 
+
     @Override
     public CharactersDto findById(Long id) {
-        return null;
+        Optional<Character> character=characterRepository.findById(id);
+        if (character.isPresent()){
+            return charactersConverter.fromCharactersToCharactersDto(character.get());
+        } else{
+            return null;
+        }
     }
-
+/*
     @Override
     public CharactersDto findByName(String name) {
         Character character=characterRepository.findByName(name);
@@ -50,6 +60,8 @@ public class CharacterServiceImpl implements CharacterService  {
             return null;
     }
 
+
+ */
     @Override
     public List<CharactersDto> findAllCharacters() {
         return characterRepository.findAll()
@@ -59,14 +71,27 @@ public class CharacterServiceImpl implements CharacterService  {
     }
 
     @Override
-    public ComicsDto findComicsByCharacterId(Long characterId) {
-
+    public ModelDataContainer<ComicsDto> findComicsByCharacterId(Long characterId) throws ComicsNotFoundException {
+        Optional<Character> characterOptional =characterRepository.findById(characterId);
+        if (characterOptional.isPresent()){
+            ModelDataContainer<ComicsDto> model=new ModelDataContainer<>();
+            model.setResults(
+            characterOptional.get().getComics()
+                    .stream()
+                    .map(comicsConverter::fromComicsToComicsDto)
+                    .collect(Collectors.toList()));
+            return model;
+        } else {
+           throw new ComicsNotFoundException("Character with id"+characterId+" not found");
+        }
     }
 
-    @Override
-    public CharactersDto updateMarvelCharacter(Long id, CharactersDto charactersDto) {
-        charactersDto.setId(id);
-        return this.createNewCharacter(charactersDto);
-    }
+        @Override
+        public CharactersDto updateMarvelCharacter(Long id, CharactersDto charactersDto) {
+            charactersDto.setId(id);
+            return this.createNewCharacter(charactersDto);
+        }
+
+
 
 }

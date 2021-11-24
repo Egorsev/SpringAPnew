@@ -1,4 +1,4 @@
-package ru.latyshev.app.SpringAPI;
+package ru.latyshev.app.SpringAPI.configurations;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

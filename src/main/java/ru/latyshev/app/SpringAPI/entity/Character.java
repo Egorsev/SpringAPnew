@@ -5,11 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
 @Table(name="marvel_characters")
-@Builder
 public class Character{
 
     @Id
@@ -24,6 +25,9 @@ public class Character{
 
     @Column
     private String imageName;
+
+    @ManyToMany(mappedBy = "characters",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<Comics> comics=new HashSet<>();
 
     public Character(){
 
