@@ -3,6 +3,7 @@ package ru.latyshev.app.SpringAPI.entity;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 import javax.persistence.*;
 import java.util.HashSet;

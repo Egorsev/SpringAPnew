@@ -11,9 +11,9 @@ import java.util.List;
 public interface CharacterService {
     CharactersDto createNewCharacter(CharactersDto charactersDto);
     void deleteCharacter(Long id);
-    CharactersDto findById(Long id);
+    ModelDataContainer<CharactersDto> findById(Long id);
  //   CharactersDto findByName(String name);
-    List<CharactersDto> findAllCharacters();
+    List<CharactersDto> findAllCharacters(int pageNumber, int pageSize);
     ModelDataContainer<ComicsDto> findComicsByCharacterId(Long characterId) throws ComicsNotFoundException;
     CharactersDto updateMarvelCharacter(Long id, CharactersDto charactersDto );
 }
