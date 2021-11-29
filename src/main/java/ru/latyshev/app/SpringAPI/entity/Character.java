@@ -1,11 +1,11 @@
 package ru.latyshev.app.SpringAPI.entity;
 
 
-import lombok.Builder;
+
 import lombok.Data;
-import lombok.NonNull;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +29,15 @@ public class Character{
 
     @ManyToMany(mappedBy = "characters",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Comics> comics=new HashSet<>();
+
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime mod;
+
+    public void setComics(Comics com) {
+        if (com!=null){
+            this.comics.add(com);
+        }
+    }
 
     public Character(){
 

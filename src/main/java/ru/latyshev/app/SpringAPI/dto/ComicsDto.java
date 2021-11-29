@@ -1,7 +1,5 @@
 package ru.latyshev.app.SpringAPI.dto;
 
-
-import com.sun.istack.NotNull;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -16,14 +14,14 @@ public class ComicsDto {
 
     private Long id;
 
-    //@ApiModelProperty(value = "Title of the comic", required = true)
+    @ApiModelProperty(value = "Title of the comics")
     @NotBlank(message = "The title should not be empty")
     private String title;
 
-    //@ApiModelProperty(value = "Description of the comic", required = true)
+    @ApiModelProperty(value = "Description of the comics")
     @NotBlank(message = "The description should not be empty")
     private String description;
 
-    //@ApiModelProperty(value = "These are the characters that are present in this comic", required = false)
+    @ApiModelProperty(value = "The characters that are present in this comic")
     private List<CharactersDto> marvelCharacters = new ArrayList<>();
 }

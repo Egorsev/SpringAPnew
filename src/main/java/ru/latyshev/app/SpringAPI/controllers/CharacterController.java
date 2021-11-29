@@ -1,8 +1,8 @@
 package ru.latyshev.app.SpringAPI.controllers;
 
 
-import lombok.AllArgsConstructor;
-import lombok.extern.java.Log;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.latyshev.app.SpringAPI.dto.CharactersDto;
 import ru.latyshev.app.SpringAPI.dto.ComicsDto;
+import ru.latyshev.app.SpringAPI.entity.Character;
 import ru.latyshev.app.SpringAPI.exception.ComicsNotFoundException;
+import ru.latyshev.app.SpringAPI.exception.NotValidParametersException;
 import ru.latyshev.app.SpringAPI.model.ModelDataContainer;
 import ru.latyshev.app.SpringAPI.model.ModelDataWrapper;
 import ru.latyshev.app.SpringAPI.service.CharacterService;
@@ -21,61 +23,75 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping
-//@RequestMapping(CharacterController.BASE_URL)
+@RequestMapping("/v1/public/characters")
 @Slf4j
+@Api("Marvel characters controller")
 public class CharacterController {
 
-    public static final String BASE_URL = "/v1/public/characters";
+    private final CharacterService characterService;
 
     @Autowired
-    private CharacterService characterService;
+    public CharacterController(CharacterService characterService) {
+        this.characterService = characterService;
+    }
 
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
-    public CharactersDto createCharacter(@Valid @RequestBody CharactersDto charactersDto, BindingResult bindingResult){
+    @ApiOperation("Creating a new character")
+    public ModelDataWrapper<CharactersDto> createCharacter(@Valid @RequestBody CharactersDto model, BindingResult bindingResult) throws NotValidParametersException {
         if (bindingResult.hasErrors()){
             log.info("creating character error");
             log.info(bindingResult.getAllErrors().toString());
+            throw new NotValidParametersException("Creating character error, bad request parameters");
         }
-        log.info("Done save character:"+charactersDto);
-        return characterService.createNewCharacter(charactersDto);
+        log.info("Done save character:"+model);
+        ModelDataWrapper<CharactersDto> dataWrapper=new ModelDataWrapper<>();
+        dataWrapper.setData(characterService.createNewCharacter(model));
+        dataWrapper.setCode(HttpStatus.CREATED.value());
+        dataWrapper.setStatus("Created new character");
+        return dataWrapper;
     }
 
-   @GetMapping
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<CharactersDto> getAllCharacters(@RequestParam Integer pageNumber, @RequestParam Integer pageSize){
+    @ApiOperation("We are finding for all available characters")
+    public List<Character> getAllCharacters(){
         log.info("Done find all characters:");
-        return characterService.findAllCharacters(pageNumber, pageSize);
+        return characterService.findAllCharacters();
     }
 
-
-/*   @GetMapping
-    public CharactersDto getCharactersByName(@RequestParam String name){
-        log.info("Done find characters by name:"+name);
-        return characterService.findByName(name);
-
-    }
-*/
 
 
     @DeleteMapping("/{charactersId}/delete")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Void> deleteMarvCharacter(@RequestParam Long id){
-        log.info("Done delete character by id:" +id);
+    @ApiOperation("Deleting character by his id")
+    public ResponseEntity<Void> deleteMarvelCharacter(@RequestParam Long id){
+        log.info("Done deleting character by id:" +id);
         characterService.deleteCharacter(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{characterId}/update")
     @ResponseStatus(HttpStatus.OK)
-    public CharactersDto updateCharacter(@PathVariable Long id, @Valid @RequestBody CharactersDto charactersDto){
+    @ApiOperation("Сhanging the character data")
+    public ModelDataWrapper<CharactersDto> updateCharacter(@PathVariable Long id, @Valid @RequestBody CharactersDto model,
+                                         BindingResult bindingResult) throws NotValidParametersException {
+        if (bindingResult.hasErrors()){
+            log.info("updating character error");
+            log.info(bindingResult.getAllErrors().toString());
+            throw new NotValidParametersException("Updating character error, bad request parameters");
+        }
         log.info("Done update character");
-         return characterService.updateMarvelCharacter(id, charactersDto);
+        ModelDataWrapper<CharactersDto> dataWrapper=new ModelDataWrapper<>();
+        dataWrapper.setData(characterService.updateMarvelCharacter(id,model));
+        dataWrapper.setCode(HttpStatus.OK.value());
+        dataWrapper.setStatus("Character updated");
+        return dataWrapper;
     }
 
     @GetMapping("/{characterId}")
     @ResponseStatus(HttpStatus.OK)
+    @ApiOperation("Finding character by his id")
     public ModelDataWrapper<CharactersDto> getCharacterById(@PathVariable Long characterId){
         ModelDataWrapper<CharactersDto> dataWrapper=new ModelDataWrapper<>();
         dataWrapper.setData(characterService.findById(characterId));
@@ -84,6 +100,7 @@ public class CharacterController {
 
     @GetMapping("/{charactersId}/comics")
     @ResponseStatus(HttpStatus.OK)
+    @ApiOperation("Finding character by id comics")
     public ModelDataContainer<ComicsDto> getCharacterByComicsId(@PathVariable Long characterId) throws ComicsNotFoundException{
             return characterService.findComicsByCharacterId(characterId);
     }

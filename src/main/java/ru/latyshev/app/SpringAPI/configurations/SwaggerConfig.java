@@ -10,7 +10,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-/* @EnableSwagger2
+@EnableSwagger2
 @Configuration
 public class SwaggerConfig {
 
@@ -25,10 +25,9 @@ public class SwaggerConfig {
     }
 
     private ApiInfo getApiInfo() {
-        return new ApiInfoBuilder().title("Test task")
+        return new ApiInfoBuilder().title("<Marvel>")
                 .description(
-                        "This API is about marvel project")
+                        "Marvel Application")
                 .version("1.0").build();
     }
 }
-*/

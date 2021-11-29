@@ -8,6 +8,8 @@ public class QueryCharactersModel {
 
     private Integer numberPage;
     private Integer pageSize;
-    private Long comicId;
+    private String modStart;
+    private String modEnd;
+    private Long comicsId;
     private String orderBy;
 }
